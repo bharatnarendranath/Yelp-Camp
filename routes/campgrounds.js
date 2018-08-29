@@ -65,18 +65,7 @@ router.get("/:id", function (req, res) {
     });
 });
 
-//Edit campground route 
-router.get("/:id/edit", function (req, res) {
-    Campground.findById(req.params.id, function (err, foundCampground) {
-        if (err) {
-            res.redirect("/campgrounds")
-        } else {
-            res.render("campgrounds/edit", {
-                campground: foundCampground
-            });
-        }
-    });
-});
+
 //Update Campground route
 
 router.put("/:id", function (req, res) {
@@ -90,12 +79,36 @@ router.put("/:id", function (req, res) {
         }
     });
 });
-//Middleware
-function isLoggedIn(req, res, next) {
-    if (req.isAuthenticated()) {
-        return next();
+
+//Edit campground route 
+router.get("/:id/edit", function (req, res) {
+    Campground.findById(req.params.id, function (err, foundCampground) {
+        if (err) {
+            res.redirect("/campgrounds")
+        } else {
+            res.render("campgrounds/edit", {
+                campground: foundCampground
+            });
+        }
+    });
+});
+
+//Destroy Campground route 
+router.delete("/:id", function (req, res) {
+    Campground.findByIdAndRemove(req.params.id, function (err) {
+        if (err) {
+            res.redirect("/campgrounds");
+        } else {
+            res.redirect("/campgrounds");
+        }
+    });
+    //Middleware
+    function isLoggedIn(req, res, next) {
+        if (req.isAuthenticated()) {
+            return next();
+        }
+        res.redirect("/login");
     }
-    res.redirect("/login");
-}
+});
 
 module.exports = router;
