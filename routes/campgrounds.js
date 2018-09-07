@@ -2,6 +2,14 @@ var express = require("express"),
     router = express.Router(),
     Campground = require("../models/campground"),
     Comment = require("../models/comment");
+
+//Middleware
+function isLoggedIn(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next();
+    }
+    res.redirect("/login");
+}
 //INDEX route -- show all campgrounds
 
 router.get("/", function (req, res) {
@@ -22,14 +30,19 @@ router.get("/", function (req, res) {
 
 //CREATE route -- add new campground to DB
 
-router.post("/", function (req, res) {
+router.post("/", isLoggedIn, function (req, res) {
     var name = req.body.name;
     var image = req.body.image;
+    var author = {
+        id: req.user._id,
+        username: req.user.username
+    }
     var description = req.body.description;
     var newCampground = {
         name: name,
         image: image,
-        description: description
+        description: description,
+        author: author
     };
     //Create a new campground and save to DB
     Campground.create(newCampground, function (err, newlyCreated) {
@@ -43,7 +56,7 @@ router.post("/", function (req, res) {
 
 //NEW route --show form to create new campground
 
-router.get("/new", function (req, res) {
+router.get("/new", isLoggedIn, function (req, res) {
     res.render("campgrounds/new");
 });
 
@@ -102,13 +115,10 @@ router.delete("/:id", function (req, res) {
             res.redirect("/campgrounds");
         }
     });
-    //Middleware
-    function isLoggedIn(req, res, next) {
-        if (req.isAuthenticated()) {
-            return next();
-        }
-        res.redirect("/login");
-    }
 });
+
+
+
+
 
 module.exports = router;
